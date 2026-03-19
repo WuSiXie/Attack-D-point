@@ -185,12 +185,11 @@ function QuickRadio.QuickRadioCallback:onEvent(Event)
     if Event.id == 15 then
         local group = Event.initiator:getGroup()
         if group then
-            local groupID = group:getID()
             local alreadyAdded = false
             
             -- 检查这个组是否已经添加过无线电
             for i, addedGroup in ipairs(QuickRadio.AddedGroups) do
-                if addedGroup:getID() == groupID then
+                if addedGroup == group then
                     alreadyAdded = true
                     break
                 end
