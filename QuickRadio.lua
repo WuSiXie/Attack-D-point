@@ -1,7 +1,18 @@
 local QuickRadio = {}
-QuickRadio.QuickRadioCallbacks = {}
+QuickRadio.AddedGroups = {}
 
 QuickRadio.RadioOptions = {
+    [6] = {
+        submenu = "索敌",
+        content = {
+            {
+                optionName = "空袭警报",
+                fileName = "sounds/voice_message_air_v1.wav",
+                outputContent = "小心空中敌袭!"
+            }
+        }
+    },
+
     [5] = {
         submenu = "申请",
         content = {
@@ -174,7 +185,22 @@ function QuickRadio.QuickRadioCallback:onEvent(Event)
     if Event.id == 15 then
         local group = Event.initiator:getGroup()
         if group then
-            QuickRadio.AddRadioCommand(group)
+            local groupID = group:getID()
+            local alreadyAdded = false
+            
+            -- 检查这个组是否已经添加过无线电
+            for i, addedGroup in ipairs(QuickRadio.AddedGroups) do
+                if addedGroup:getID() == groupID then
+                    alreadyAdded = true
+                    break
+                end
+            end
+            
+            -- 如果没有添加过，则添加
+            if not alreadyAdded then
+                QuickRadio.AddRadioCommand(group)
+                table.insert(QuickRadio.AddedGroups, group)
+            end
         end
     end
 end
