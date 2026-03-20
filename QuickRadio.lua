@@ -1,5 +1,6 @@
 local QuickRadio = {}
 QuickRadio.AddedGroups = {}
+QuickRadio.rootMenu = true -- 设置为true以在每个组的无线电菜单中添加一个根菜单
 
 QuickRadio.RadioOptions = {
     [6] = {
@@ -170,6 +171,17 @@ function QuickRadio.ShowAndPlayRadio(parameters)
     end
 end
 
+function QuickRadio.AddRadioCommandRoot(group)
+    local rootMenu = missionCommands.addSubMenuForGroup(group:getID(), "快速无线电")
+    for i, entry in ipairs(QuickRadio.RadioOptions) do
+        local submenu = missionCommands.addSubMenuForGroup(group:getID(), entry.submenu, rootMenu)
+        for k, v in ipairs(entry.content) do
+            local VtoPass = {group, v.fileName, v.outputContent}
+            missionCommands.addCommandForGroup(group:getID(), v.optionName, submenu, QuickRadio.ShowAndPlayRadio, VtoPass)
+        end
+    end
+end
+
 function QuickRadio.AddRadioCommand(group)
     for i, entry in ipairs(QuickRadio.RadioOptions) do
         local submenu = missionCommands.addSubMenuForGroup(group:getID(), entry.submenu)
@@ -197,7 +209,11 @@ function QuickRadio.QuickRadioCallback:onEvent(Event)
             
             -- 如果没有添加过，则添加
             if not alreadyAdded then
-                QuickRadio.AddRadioCommand(group)
+                if QuickRadio.rootMenu then
+                    QuickRadio.AddRadioCommandRoot(group)
+                else
+                    QuickRadio.AddRadioCommand(group)
+                end
                 table.insert(QuickRadio.AddedGroups, group)
             end
         end
